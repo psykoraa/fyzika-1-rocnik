@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zaokrouhlování výsledků měření</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5f0e3;
+  --surface:#fffcf5;
+  --surface-2:#ece4d1;
+  --ink:#212b34;
+  --ink-soft:#5d6b76;
+  --line:rgba(33,43,52,0.12);
+  --accent:#c9581f;
+  --accent-ink:#fff8f0;
+  --success:#28794f;
+  --success-bg:#e3efe0;
+  --danger:#b3392b;
+  --danger-bg:#f5e4de;
+  --focus:#1e6f66;
+  --shadow: 0 1px 0 rgba(33,43,52,0.06);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0/100% 34px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/34px 100%,
+    var(--paper);
+  background-attachment:local;
+  color:var(--ink);
+  font-family:'Work Sans', system-ui, sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{
+  max-width:900px;
+  margin:0 auto;
+  padding:28px 20px 60px;
+}
+h1,h2,h3{ text-wrap:balance; margin:0; }
+.brand{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:22px;
+}
+.brand-lockup{ display:flex; align-items:center; gap:12px; }
+.brand-lockup svg{ flex:none; }
+.brand-text h1{
+  font-family:'Big Shoulders Display', sans-serif;
+  font-weight:800;
+  font-size:2.1rem;
+  letter-spacing:0.02em;
+  line-height:1;
+  color:var(--ink);
+}
+.brand-text p{
+  margin:2px 0 0;
+  font-size:0.82rem;
+  color:var(--ink-soft);
+  letter-spacing:0.02em;
+}
+.readout{ display:flex; gap:8px; }
+.readout .cell{
+  background:var(--ink);
+  color:var(--paper);
+  border-radius:6px;
+  padding:6px 12px;
+  min-width:74px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+.readout .cell .label{
+  display:block;
+  font-size:0.6rem;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+  opacity:0.65;
+  margin-bottom:2px;
+}
+.readout .cell .value{
+  font-family:'IBM Plex Mono', monospace;
+  font-weight:600;
+  font-size:1.05rem;
+  font-variant-numeric:tabular-nums;
+}
+
+.panel{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:16px 18px;
+  margin-bottom:18px;
+}
+.panel-title{
+  font-size:0.68rem;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--ink-soft);
+  font-weight:600;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.row{ display:flex; flex-wrap:wrap; gap:8px; }
+.row[hidden]{ display:none; }
+.chip{
+  font-family:'Work Sans', sans-serif;
+  font-size:0.86rem;
+  font-weight:500;
+  padding:7px 13px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:var(--surface);
+  color:var(--ink-soft);
+  cursor:pointer;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.chip:hover{ border-color:var(--accent); }
+.chip.on{
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+}
+.settings-foot{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:14px;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.hint{ font-size:0.78rem; color:var(--ink-soft); }
+.linklike{
+  background:none;
+  border:none;
+  color:var(--ink-soft);
+  font-size:0.78rem;
+  text-decoration:underline;
+  cursor:pointer;
+  padding:4px 0;
+}
+.linklike:hover{ color:var(--danger); }
+.category-toggle{
+  font-size:0.68rem;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  font-weight:600;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+.category-toggle:hover{ color:var(--accent); }
+.toggle-arrow{
+  display:inline-block;
+  font-size:0.9em;
+  transition:transform .12s ease;
+}
+.category-toggle[aria-expanded="true"] .toggle-arrow{ transform:rotate(90deg); }
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:30px 30px 30px;
+  text-align:center;
+}
+.sym{ font-style:italic; }
+.cat-tag{
+  display:inline-block;
+  font-size:0.68rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  background:var(--surface-2);
+  padding:4px 11px;
+  border-radius:999px;
+  margin-bottom:18px;
+}
+
+.given-data{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:clamp(0.95rem, 2.6vw, 1.15rem);
+  color:var(--ink-soft);
+  margin-bottom:22px;
+  font-variant-numeric:tabular-nums;
+}
+.given-line{ margin:4px 0; }
+.given-line b{ color:var(--ink); font-weight:600; }
+
+.equation-block{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+.eq-row{
+  font-family:'IBM Plex Mono', monospace;
+  font-weight:600;
+  font-size:clamp(1.15rem, 3.8vw, 1.7rem);
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:0.32em;
+  flex-wrap:wrap;
+  font-variant-numeric:tabular-nums;
+}
+.eq-row .unit{ color:var(--ink-soft); font-size:0.62em; margin-left:0.05em; }
+.eq-row .eq{ color:var(--ink-soft); margin:0 0.05em; }
+.answer-input{
+  font-family:'IBM Plex Mono', monospace;
+  font-weight:600;
+  font-size:1em;
+  width:4.6em;
+  text-align:center;
+  border:none;
+  border-bottom:3px solid var(--ink-soft);
+  background:transparent;
+  color:var(--ink);
+  padding:0 0.1em 0.05em;
+}
+.answer-input.small{ width:3.4em; }
+.answer-input:focus{ outline:none; border-color:var(--focus); }
+.answer-input.correct{ border-color:var(--success); color:var(--success); }
+.answer-input.wrong{ border-color:var(--danger); color:var(--danger); }
+.answer-input:disabled{ opacity:1; }
+
+.actions{
+  margin-top:26px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+button.btn{
+  font-family:'Work Sans', sans-serif;
+  font-weight:600;
+  font-size:0.92rem;
+  padding:11px 22px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--surface);
+  color:var(--ink);
+  cursor:pointer;
+  transition:transform .05s ease, background .12s;
+}
+button.btn:active{ transform:translateY(1px); }
+button.btn.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--accent-ink);
+}
+button.btn.primary:hover{ filter:brightness(1.06); }
+button.btn.ghost:hover{ border-color:var(--ink-soft); }
+button.btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+.feedback{
+  margin-top:22px;
+  border-radius:10px;
+  padding:14px 16px;
+  text-align:left;
+}
+.feedback[hidden]{ display:none; }
+.feedback.ok{ background:var(--success-bg); color:var(--success); }
+.feedback.bad{ background:var(--danger-bg); color:var(--danger); }
+.feedback .headline{ font-weight:700; font-size:0.98rem; margin-bottom:6px; }
+.feedback .steps{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.85rem;
+  color:var(--ink);
+  opacity:0.85;
+  font-variant-numeric:tabular-nums;
+  white-space:pre-line;
+  line-height:1.55;
+}
+
+footer{
+  margin-top:26px;
+  text-align:center;
+  font-size:0.76rem;
+  color:var(--ink-soft);
+}
+
+@media (max-width:520px){
+  .card{ padding:26px 16px 24px; }
+  .readout .cell{ min-width:64px; padding:6px 8px; }
+}
+.back-link{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:0.82rem;
+  font-weight:500;
+  color:var(--ink-soft);
+  text-decoration:none;
+  margin-bottom:14px;
+}
+.back-link:hover{ color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <a class="back-link" href="index.html">← Zpět na Fyzika</a>
+
+  <div class="brand">
+    <div class="brand-lockup">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="20" cy="20" r="15" fill="none" stroke="var(--accent)" stroke-width="2"/>
+        <path d="M20 20 L20 9" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M20 20 L28 25" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="20" cy="20" r="1.6" fill="var(--accent)"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Zaokrouhlování měření</h1>
+        <p>zaokrouhlení průměru, odchylky a relativní odchylky</p>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="cell"><span class="label">Skóre</span><span class="value" id="stat-score">0</span></div>
+      <div class="cell"><span class="label">Série</span><span class="value" id="stat-streak">0</span></div>
+      <div class="cell"><span class="label">Úspěšnost</span><span class="value" id="stat-accuracy">—</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">
+      <button class="linklike category-toggle" id="category-toggle" type="button" aria-expanded="false" aria-controls="category-row">Veličiny <span class="toggle-arrow" id="category-toggle-arrow">▸</span></button>
+    </div>
+    <div class="row" id="category-row" hidden></div>
+    <div class="settings-foot">
+      <span class="hint">Desetinná čísla pište s čárkou i tečkou.</span>
+      <button class="linklike" id="reset-stats">vynulovat statistiku</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="cat-tag" id="cat-tag">Síla</span>
+
+    <div class="given-data" id="given-data">
+      <div class="given-line">Naměřeno (nezaokrouhleně): <b id="given-avg-label" class="sym">F</b> = <b id="given-avg-value">12,5837</b> <span id="given-avg-unit">N</span>, <b id="given-dev-label" class="sym">ΔF</b> = <b id="given-dev-value">0,4187</b> <span id="given-dev-unit">N</span></div>
+    </div>
+
+    <div class="equation-block">
+      <div class="eq-row">
+        <span id="qty-symbol" class="sym">F</span>
+        <span class="eq">=</span>
+        <span class="eq">(</span>
+        <input class="answer-input" id="answer-avg" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="?">
+        <span class="eq">±</span>
+        <input class="answer-input" id="answer-dev" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="?">
+        <span class="eq">)</span>
+        <span class="unit" id="qty-unit">N</span>
+      </div>
+      <div class="eq-row">
+        <span id="qty-symbol-delta" class="sym">δF</span>
+        <span class="eq">=</span>
+        <input class="answer-input small" id="answer-reldev" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="?">
+        <span class="unit">%</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="btn-check">Zkontrolovat</button>
+      <button class="btn ghost" id="btn-skip">Nevím / Další</button>
+    </div>
+    <div class="feedback" id="feedback" hidden>
+      <div class="headline" id="feedback-headline"></div>
+      <div class="steps" id="feedback-steps"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var QUANTITIES = [
+    { key:'sila', symbol:'F', name:'Síla', unit:'N', range:[0.5,800] },
+    { key:'hmotnost', symbol:'m', name:'Hmotnost', unit:'kg', range:[0.02,40] },
+    { key:'delka', symbol:'l', name:'Délka', unit:'m', range:[0.05,25] },
+    { key:'cas', symbol:'t', name:'Čas', unit:'s', range:[0.5,300] },
+    { key:'napeti', symbol:'U', name:'Elektrické napětí', unit:'V', range:[0.5,230] },
+    { key:'proud', symbol:'I', name:'Elektrický proud', unit:'A', range:[0.01,8] },
+    { key:'odpor', symbol:'R', name:'Elektrický odpor', unit:'Ω', range:[1,5000] },
+    { key:'rychlost', symbol:'v', name:'Rychlost', unit:'m/s', range:[0.1,40] },
+    { key:'hustota', symbol:'ρ', name:'Hustota', unit:'kg/m³', range:[50,9000] },
+    { key:'tlak', symbol:'p', name:'Tlak', unit:'Pa', range:[10,20000] },
+    { key:'energie', symbol:'E', name:'Energie', unit:'J', range:[0.5,3000] },
+    { key:'vykon', symbol:'P', name:'Výkon', unit:'W', range:[0.5,1500] },
+    { key:'zrychleni', symbol:'a', name:'Zrychlení', unit:'m/s²', range:[0.1,15] },
+    { key:'frekvence', symbol:'f', name:'Frekvence', unit:'Hz', range:[0.5,800] }
+  ];
+
+  var ORDER_NAMES = {
+    4:'na desetitisíce', 3:'na tisíce', 2:'na stovky', 1:'na desítky', 0:'na jednotky',
+    '-1':'na desetiny', '-2':'na setiny', '-3':'na tisíciny', '-4':'na desetitisíciny', '-5':'na statisíciny'
+  };
+  function orderLabel(order){
+    return ORDER_NAMES[order] || ('na řád 10^' + order);
+  }
+
+  var state = {
+    sel:{},
+    score:0, streak:0, bestStreak:0, answered:0, correct:0,
+    current:null, locked:false
+  };
+  QUANTITIES.forEach(function(q){ state.sel[q.key] = true; });
+
+  function loadStats(){
+    try{
+      var raw = localStorage.getItem('zaokrouhlovani-stats');
+      if(raw){ state.bestStreak = JSON.parse(raw).bestStreak || 0; }
+    }catch(e){}
+  }
+  function saveStats(){
+    try{ localStorage.setItem('zaokrouhlovani-stats', JSON.stringify({bestStreak: state.bestStreak})); }catch(e){}
+  }
+
+  function fmtCZ(n, maxDecimals){
+    var f = Math.pow(10,maxDecimals);
+    var v = Math.round(n*f)/f;
+    if(Object.is(v,-0)) v = 0;
+    return v.toString().replace('.', ',');
+  }
+
+  function roundTo(n, decimals){
+    var f = Math.pow(10, decimals);
+    var cleaned = Number((n*f).toPrecision(15));
+    var v = Math.round(cleaned)/f;
+    if(Object.is(v,-0)) v = 0;
+    return v;
+  }
+
+  function fmtFixed(n, decimals){
+    var v = roundTo(n, decimals);
+    if(Object.is(v,-0)) v = 0;
+    return v.toFixed(decimals).replace('.', ',');
+  }
+
+  // Zaokrouhlení na daný počet platných cifer.
+  function roundSig(val, sig){
+    if(val===0) return 0;
+    var mag = Math.floor(Math.log10(Math.abs(val)));
+    var f = Math.pow(10, sig-1-mag);
+    var cleaned = Number((val*f).toPrecision(15));
+    var v = Math.round(cleaned)/f;
+    if(Object.is(v,-0)) v = 0;
+    return v;
+  }
+
+  // Zaokrouhlení na daný řád (order = mocnina deseti posledního platného místa:
+  // 0 = jednotky, 1 = desítky, -1 = desetiny, ...). Sjednocuje zaokrouhlení nahoru
+  // i dolů od desetinné čárky do jedné funkce.
+  function roundToOrder(val, order){
+    var f = Math.pow(10, -order);
+    var cleaned = Number((val*f).toPrecision(15));
+    var v = Math.round(cleaned)/f;
+    if(Object.is(v,-0)) v = 0;
+    return v;
+  }
+
+  function decimalsForSig(value, sig){
+    if(value===0) return Math.max(0, sig-1);
+    var mag = Math.floor(Math.log10(Math.abs(value)));
+    return Math.max(0, sig-1-mag);
+  }
+  function decimalsForOrder(order){ return order<0 ? -order : 0; }
+
+  function randomRawValue(range, minDecimals, maxDecimals){
+    var lo = range[0], hi = range[1];
+    var raw = lo + Math.random()*(hi-lo);
+    var decimals = minDecimals + Math.floor(Math.random()*(maxDecimals-minDecimals+1));
+    var f = Math.pow(10,decimals);
+    var v = Math.round(raw*f)/f;
+    if(v===0) v = 1/f;
+    return { value:v, decimals:decimals };
+  }
+
+  function generateQuestion(){
+    var pool = QUANTITIES.filter(function(q){ return state.sel[q.key]; });
+    if(pool.length===0) pool = QUANTITIES;
+    var q = pool[Math.floor(Math.random()*pool.length)];
+
+    var attempt, avgObj, devVal, devDecimals, roundedDev, devOrder, roundedAvg, relDevRaw, roundedRelDev;
+    for(attempt=0; attempt<12; attempt++){
+      avgObj = randomRawValue(q.range, 2, 4);
+      var relPct = 0.01 + Math.random()*0.14;
+      var devRawTarget = avgObj.value * relPct;
+      devDecimals = 2 + Math.floor(Math.random()*3);
+      var devF = Math.pow(10,devDecimals);
+      devVal = Math.round(devRawTarget*devF)/devF;
+      if(devVal===0) devVal = 1/devF;
+
+      roundedDev = roundSig(devVal, 1);
+      devOrder = Math.floor(Math.log10(Math.abs(roundedDev)));
+      roundedAvg = roundToOrder(avgObj.value, devOrder);
+      if(roundedAvg!==0) break;
+    }
+
+    relDevRaw = roundedDev/roundedAvg*100;
+    roundedRelDev = roundSig(relDevRaw, 2);
+
+    var avgDecimalsForAnswer = decimalsForOrder(devOrder);
+    var relDecimalsForAnswer = decimalsForSig(roundedRelDev, 2);
+
+    var deltaSym = 'Δ' + q.symbol;
+    var smallDeltaSym = 'δ' + q.symbol;
+    var iSym = '<i>' + q.symbol + '</i>';
+    var iDelta = '<i>' + deltaSym + '</i>';
+    var iSmallDelta = '<i>' + smallDeltaSym + '</i>';
+
+    var stepsText =
+      iDelta + ': ' + fmtFixed(devVal, devDecimals) + ' ' + q.unit + ' → zaokrouhleno na 1 platnou cifru (' + orderLabel(devOrder) + ') → ' + fmtFixed(roundedDev, avgDecimalsForAnswer) + ' ' + q.unit + '\n' +
+      iSym + ': ' + fmtFixed(avgObj.value, avgObj.decimals) + ' ' + q.unit + ' → zaokrouhleno na stejný řád jako ' + iDelta + ' (' + orderLabel(devOrder) + ') → ' + fmtFixed(roundedAvg, avgDecimalsForAnswer) + ' ' + q.unit + '\n' +
+      iSmallDelta + ' = ' + fmtFixed(roundedDev, avgDecimalsForAnswer) + '/' + fmtFixed(roundedAvg, avgDecimalsForAnswer) + ' × 100 ≈ ' + fmtCZ(relDevRaw,4) + ' % → zaokrouhleno na 2 platné cifry → ' + fmtFixed(roundedRelDev, relDecimalsForAnswer) + ' %\n' +
+      'Zápis: ' + iSym + ' = (' + fmtFixed(roundedAvg, avgDecimalsForAnswer) + ' ± ' + fmtFixed(roundedDev, avgDecimalsForAnswer) + ') ' + q.unit + ';  ' + iSmallDelta + ' = ' + fmtFixed(roundedRelDev, relDecimalsForAnswer) + ' %';
+
+    state.current = {
+      q:q,
+      avgRaw:avgObj.value, avgRawDecimals:avgObj.decimals,
+      devRaw:devVal, devRawDecimals:devDecimals,
+      roundedAvg:roundedAvg, roundedDev:roundedDev, roundedRelDev:roundedRelDev,
+      answerDecimals:avgDecimalsForAnswer,
+      stepsText:stepsText
+    };
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    var s = state.current, q = s.q;
+    document.getElementById('cat-tag').textContent = q.name;
+
+    document.getElementById('given-avg-label').textContent = q.symbol;
+    document.getElementById('given-avg-value').textContent = fmtFixed(s.avgRaw, s.avgRawDecimals);
+    document.getElementById('given-avg-unit').textContent = q.unit;
+    document.getElementById('given-dev-label').textContent = 'Δ' + q.symbol;
+    document.getElementById('given-dev-value').textContent = fmtFixed(s.devRaw, s.devRawDecimals);
+    document.getElementById('given-dev-unit').textContent = q.unit;
+
+    document.getElementById('qty-symbol').textContent = q.symbol;
+    document.getElementById('qty-unit').textContent = q.unit;
+    document.getElementById('qty-symbol-delta').textContent = 'δ' + q.symbol;
+
+    ['answer-avg','answer-dev','answer-reldev'].forEach(function(id){
+      var el = document.getElementById(id);
+      el.value = ''; el.disabled = false; el.classList.remove('correct','wrong');
+    });
+
+    document.getElementById('feedback').hidden = true;
+    document.getElementById('feedback').classList.remove('ok','bad');
+    state.locked = false;
+    document.getElementById('btn-check').textContent = 'Zkontrolovat';
+
+    document.getElementById('answer-avg').focus();
+  }
+
+  function parseAnswer(str){
+    if(!str) return NaN;
+    str = str.trim().replace(',', '.').replace(/\s+/g,'').replace('%','');
+    return parseFloat(str);
+  }
+
+  function closeEnough(a,b){
+    if(isNaN(a)) return false;
+    return Math.abs(a-b) <= Math.max(Math.abs(b)*1e-6, 1e-9);
+  }
+
+  function disableInputs(){
+    ['answer-avg','answer-dev','answer-reldev'].forEach(function(id){
+      document.getElementById(id).disabled = true;
+    });
+  }
+
+  function checkAnswer(){
+    if(state.locked){ generateQuestion(); return; }
+    var s = state.current;
+    var avgInput = document.getElementById('answer-avg');
+    var devInput = document.getElementById('answer-dev');
+    var relInput = document.getElementById('answer-reldev');
+
+    var avgVal = parseAnswer(avgInput.value);
+    var devVal = parseAnswer(devInput.value);
+    var relVal = parseAnswer(relInput.value);
+
+    var avgOk = closeEnough(avgVal, s.roundedAvg);
+    var devOk = closeEnough(devVal, s.roundedDev);
+    var relOk = closeEnough(relVal, s.roundedRelDev);
+    var allOk = avgOk && devOk && relOk;
+
+    avgInput.classList.add(avgOk ? 'correct' : 'wrong');
+    devInput.classList.add(devOk ? 'correct' : 'wrong');
+    relInput.classList.add(relOk ? 'correct' : 'wrong');
+
+    state.answered++;
+    var fb = document.getElementById('feedback');
+    var head = document.getElementById('feedback-headline');
+    var steps = document.getElementById('feedback-steps');
+    fb.hidden = false;
+
+    if(allOk){
+      state.score += 10; state.streak++; state.correct++;
+      if(state.streak>state.bestStreak){ state.bestStreak = state.streak; saveStats(); }
+      fb.classList.add('ok'); fb.classList.remove('bad');
+      head.textContent = 'Správně!';
+    } else {
+      state.streak = 0;
+      fb.classList.add('bad'); fb.classList.remove('ok');
+      head.textContent = 'Bohužel, aspoň jedna hodnota nesedí.';
+    }
+    steps.innerHTML = s.stepsText;
+    disableInputs();
+    state.locked = true;
+    var btnCheck = document.getElementById('btn-check');
+    btnCheck.textContent = 'Další příklad →';
+    btnCheck.focus();
+    updateStats();
+  }
+
+  function skip(){
+    if(state.locked){ generateQuestion(); return; }
+    state.streak = 0;
+    state.answered++;
+    var s = state.current;
+    var fb = document.getElementById('feedback');
+    fb.hidden = false;
+    document.getElementById('feedback-headline').textContent = 'Správné řešení:';
+    document.getElementById('feedback-steps').innerHTML = s.stepsText;
+    fb.classList.add('bad'); fb.classList.remove('ok');
+    disableInputs();
+    state.locked = true;
+    var btnCheck = document.getElementById('btn-check');
+    btnCheck.textContent = 'Další příklad →';
+    btnCheck.focus();
+    updateStats();
+  }
+
+  function updateStats(){
+    document.getElementById('stat-score').textContent = state.score;
+    document.getElementById('stat-streak').textContent = state.streak + (state.bestStreak>0 ? ' / ' + state.bestStreak : '');
+    document.getElementById('stat-accuracy').textContent = state.answered===0 ? '—' : Math.round(100*state.correct/state.answered) + ' %';
+  }
+
+  function buildCategoryRow(){
+    var row = document.getElementById('category-row');
+    row.innerHTML = '';
+    QUANTITIES.forEach(function(q){
+      var b = document.createElement('button');
+      b.className = 'chip' + (state.sel[q.key] ? ' on' : '');
+      b.textContent = q.name;
+      b.addEventListener('click', function(){
+        var activeCount = QUANTITIES.filter(function(qq){ return state.sel[qq.key]; }).length;
+        if(state.sel[q.key] && activeCount===1) return;
+        state.sel[q.key] = !state.sel[q.key];
+        b.classList.toggle('on', state.sel[q.key]);
+        generateQuestion();
+      });
+      row.appendChild(b);
+    });
+  }
+
+  document.getElementById('category-toggle').addEventListener('click', function(){
+    var row = document.getElementById('category-row');
+    var expanded = row.hidden;
+    row.hidden = !expanded;
+    this.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  });
+
+  document.getElementById('btn-check').addEventListener('click', checkAnswer);
+  document.getElementById('btn-skip').addEventListener('click', skip);
+  ['answer-avg','answer-dev','answer-reldev'].forEach(function(id){
+    document.getElementById(id).addEventListener('keydown', function(e){
+      if(e.key==='Enter'){ e.preventDefault(); checkAnswer(); }
+    });
+  });
+  document.getElementById('reset-stats').addEventListener('click', function(){
+    state.score=0; state.streak=0; state.answered=0; state.correct=0; state.bestStreak=0;
+    try{ localStorage.removeItem('zaokrouhlovani-stats'); }catch(e){}
+    updateStats();
+  });
+
+  loadStats();
+  buildCategoryRow();
+  updateStats();
+  generateQuestion();
+})();
+</script>
+
+</body>
+</html>
