@@ -71,6 +71,40 @@ h1,h2,h3{ text-wrap:balance; margin:0; }
   color:var(--ink-soft);
   letter-spacing:0.02em;
 }
+.readout{ display:flex; gap:8px; }
+.readout .cell{
+  background:var(--ink);
+  color:var(--paper);
+  border-radius:6px;
+  padding:6px 12px;
+  min-width:74px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+.readout .cell .label{
+  display:block;
+  font-size:0.6rem;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+  opacity:0.65;
+  margin-bottom:2px;
+}
+.readout .cell .value{
+  font-family:'IBM Plex Mono', monospace;
+  font-weight:600;
+  font-size:1.05rem;
+  font-variant-numeric:tabular-nums;
+}
+.linklike{
+  background:none;
+  border:none;
+  color:var(--ink-soft);
+  font-size:0.78rem;
+  text-decoration:underline;
+  cursor:pointer;
+  padding:4px 0;
+}
+.linklike:hover{ color:var(--danger); }
 .back-link{
   display:inline-flex;
   align-items:center;
@@ -185,6 +219,7 @@ h1,h2,h3{ text-wrap:balance; margin:0; }
   font-weight:600;
   margin-right:2px;
 }
+.mode-row .linklike{ margin-left:auto; }
 .seg{ display:flex; gap:6px; flex-wrap:wrap; }
 
 .chip{
@@ -339,36 +374,6 @@ svg.vec-canvas{
   font-variant-numeric:tabular-nums;
 }
 
-.trainer-stats{
-  margin-top:14px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.tstat{
-  background:var(--surface-2);
-  border-radius:8px;
-  padding:9px 14px;
-  min-width:96px;
-}
-.tstat .ts-label{
-  display:block;
-  font-size:0.68rem;
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  color:var(--ink-soft);
-  font-weight:600;
-  margin-bottom:2px;
-}
-.tstat .ts-value{
-  display:block;
-  font-family:'IBM Plex Mono', monospace;
-  font-weight:700;
-  font-size:1rem;
-  color:var(--ink);
-  font-variant-numeric:tabular-nums;
-}
-
 .actions{
   margin-top:16px;
   display:flex;
@@ -407,6 +412,7 @@ footer{
 @media (max-width:520px){
   .card{ padding:20px 16px 22px; }
   .chip.para{ margin-left:0; }
+  .readout .cell{ min-width:64px; padding:6px 8px; }
 }
 </style>
 </head>
@@ -435,6 +441,11 @@ footer{
         <h1>Skládání vektorů</h1>
         <p>skládání dvou a tří vektorů</p>
       </div>
+    </div>
+    <div class="readout">
+      <div class="cell"><span class="label">Skóre</span><span class="value" id="stat-score">0</span></div>
+      <div class="cell"><span class="label">Série</span><span class="value" id="stat-streak">0</span></div>
+      <div class="cell"><span class="label">Úspěšnost</span><span class="value" id="stat-accuracy">—</span></div>
     </div>
   </div>
 
@@ -572,6 +583,7 @@ footer{
         <button class="chip on" data-count="2">Dva vektory</button>
         <button class="chip" data-count="3">Tři vektory</button>
       </div>
+      <button class="linklike" id="reset-stats">vynulovat statistiku</button>
     </div>
 
     <div class="canvas-wrap">
@@ -607,12 +619,6 @@ footer{
     <div class="feedback" id="trainer-feedback" hidden>
       <div class="headline" id="trainer-feedback-headline"></div>
       <div class="steps" id="trainer-feedback-steps"></div>
-    </div>
-
-    <div class="trainer-stats">
-      <div class="tstat"><span class="ts-label">Skóre</span><span class="ts-value" id="trainer-score">0</span></div>
-      <div class="tstat"><span class="ts-label">Série</span><span class="ts-value" id="trainer-streak">0</span></div>
-      <div class="tstat"><span class="ts-label">Úspěšnost</span><span class="ts-value" id="trainer-accuracy">—</span></div>
     </div>
 
     <div class="actions">
@@ -996,9 +1002,19 @@ footer{
     var fbHead = document.getElementById('trainer-feedback-headline');
     var fbSteps = document.getElementById('trainer-feedback-steps');
 
-    var scoreEl = document.getElementById('trainer-score');
-    var streakEl = document.getElementById('trainer-streak');
-    var accEl = document.getElementById('trainer-accuracy');
+    var scoreEl = document.getElementById('stat-score');
+    var streakEl = document.getElementById('stat-streak');
+    var accEl = document.getElementById('stat-accuracy');
+
+    function loadStats(){
+      try{
+        var raw = localStorage.getItem('vektory-stats');
+        if(raw){ state.bestStreak = JSON.parse(raw).bestStreak || 0; }
+      }catch(e){}
+    }
+    function saveStats(){
+      try{ localStorage.setItem('vektory-stats', JSON.stringify({bestStreak: state.bestStreak})); }catch(e){}
+    }
 
     var state = {
       count: 2,
@@ -1151,7 +1167,7 @@ footer{
         state.streak = 0;
       } else if(ok){
         state.score += 10; state.streak++; state.correct++;
-        if(state.streak > state.bestStreak) state.bestStreak = state.streak;
+        if(state.streak > state.bestStreak){ state.bestStreak = state.streak; saveStats(); }
       } else {
         state.streak = 0;
       }
@@ -1187,11 +1203,28 @@ footer{
     });
 
     document.getElementById('trainer-skip').addEventListener('click', function(){ evaluate(true); });
-    document.getElementById('trainer-next').addEventListener('click', newExample);
+
+    // Když příklad ještě není vyhodnocený (žádný tip ani zobrazené řešení), zeptá se,
+    // jestli žák opravdu chce příklad opustit bez odpovědi — a pokud ano, započítá ho
+    // jako chybný. Používá se jak pro tlačítko „Další příklad", tak pro přepnutí počtu
+    // vektorů, aby se nedalo nepohodlným příkladům jen tak uniknout.
+    function confirmDiscardIfUnanswered(){
+      if(state.revealed) return true;
+      var proceed = window.confirm('Nezvolili jste žádnou výslednici. Pokud budete pokračovat, započítá se aktuální příklad jako chybná odpověď. Opravdu chcete pokračovat?');
+      if(!proceed) return false;
+      evaluate(true);
+      return true;
+    }
+
+    document.getElementById('trainer-next').addEventListener('click', function(){
+      if(!confirmDiscardIfUnanswered()) return;
+      newExample();
+    });
 
     var countSeg = document.getElementById('trainer-count-seg');
     Array.prototype.slice.call(countSeg.querySelectorAll('button')).forEach(function(b){
       b.addEventListener('click', function(){
+        if(!confirmDiscardIfUnanswered()) return;
         Array.prototype.forEach.call(countSeg.children, function(bb){ bb.classList.remove('on'); });
         b.classList.add('on');
         state.count = parseInt(b.getAttribute('data-count'), 10);
@@ -1199,6 +1232,14 @@ footer{
       });
     });
 
+    document.getElementById('reset-stats').addEventListener('click', function(){
+      state.score=0; state.streak=0; state.answered=0; state.correct=0; state.bestStreak=0;
+      try{ localStorage.removeItem('vektory-stats'); }catch(e){}
+      updateStats();
+    });
+
+    loadStats();
+    updateStats();
     newExample();
     return render;
   })();
