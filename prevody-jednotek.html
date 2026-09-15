@@ -788,6 +788,25 @@ footer{
     document.getElementById('answer-exp').disabled = true;
   }
 
+  // Vrátí true, pokud je aktuální odpověď prázdná/nevyplněná.
+  function isAnswerEmpty(){
+    return isNaN(getUserValue().value);
+  }
+
+  // Společná brána pro "Zkontrolovat" i pro přepínání veličin: pokud je příklad
+  // ještě nezamčený (nezkontrolovaný), nejdřív se u prázdné odpovědi zeptá, jestli
+  // to uživatel opravdu chce, a pak vždy provede kontrolu (aby se nedalo příklad
+  // jen tak přeskočit beze zkontrolování). Vrací true, pokud má volající pokračovat
+  // dál (např. přepnout veličinu), false pokud má akci zrušit (uživatel zrušil dialog).
+  function checkBeforeProceeding(){
+    if(state.locked) return true;
+    if(isAnswerEmpty()){
+      if(!confirm('Odpověď není vyplněná. Opravdu chcete zkontrolovat?')) return false;
+    }
+    checkAnswer();
+    return true;
+  }
+
   function checkAnswer(){
     if(state.locked){ generateQuestion(); return; }
     var q = state.current;
@@ -893,6 +912,7 @@ footer{
       b.addEventListener('click', function(){
         var activeCount = list.filter(function(cc){ return sel[cc.key]; }).length;
         if(sel[c.key] && activeCount===1) return;
+        if(!checkBeforeProceeding()) return;
         sel[c.key] = !sel[c.key];
         b.classList.toggle('on', sel[c.key]);
         generateQuestion();
@@ -947,7 +967,13 @@ footer{
     this.setAttribute('aria-expanded', expanded ? 'true' : 'false');
   });
 
-  document.getElementById('btn-check').addEventListener('click', checkAnswer);
+  document.getElementById('btn-check').addEventListener('click', function(){
+    if(state.locked){ generateQuestion(); return; }
+    if(isAnswerEmpty()){
+      if(!confirm('Odpověď není vyplněná. Opravdu chcete zkontrolovat?')) return;
+    }
+    checkAnswer();
+  });
   document.getElementById('btn-skip').addEventListener('click', skip);
   document.getElementById('answer').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkAnswer(); } });
   document.getElementById('answer-mantissa').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkAnswer(); } });
