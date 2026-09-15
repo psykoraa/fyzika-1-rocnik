@@ -92,6 +92,35 @@ h1,h2,h3{ text-wrap:balance; margin:0; }
   font-variant-numeric:tabular-nums;
 }
 
+.top-tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:22px;
+}
+.toptab{
+  flex:1 1 0;
+  font-family:'Big Shoulders Display', sans-serif;
+  font-weight:700;
+  font-size:1.05rem;
+  letter-spacing:0.02em;
+  padding:13px 20px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--surface);
+  color:var(--ink-soft);
+  cursor:pointer;
+  text-align:center;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.toptab:hover{ border-color:var(--accent); }
+.toptab.on{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--accent-ink);
+}
+.toptab:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+.tab-section[hidden]{ display:none; }
+
 .panel{
   background:var(--surface);
   border:1px solid var(--line);
@@ -99,6 +128,13 @@ h1,h2,h3{ text-wrap:balance; margin:0; }
   padding:16px 18px;
   margin-bottom:18px;
 }
+.panel p{
+  margin:0 0 8px;
+  font-size:0.9rem;
+  line-height:1.55;
+}
+.panel p:last-child{ margin-bottom:0; }
+.panel b{ color:var(--ink); }
 .panel-title{
   font-size:0.68rem;
   text-transform:uppercase;
@@ -175,6 +211,16 @@ h1,h2,h3{ text-wrap:balance; margin:0; }
   text-align:center;
 }
 .sym{ font-style:italic; }
+.avgsym{
+  font-style:italic;
+  display:inline-block;
+  line-height:1;
+  padding-top:0.30em;
+  background-image:linear-gradient(currentColor, currentColor);
+  background-repeat:no-repeat;
+  background-size:100% max(1px, 0.05em);
+  background-position:0 0.24em;
+}
 .cat-tag{
   display:inline-block;
   font-size:0.68rem;
@@ -186,6 +232,21 @@ h1,h2,h3{ text-wrap:balance; margin:0; }
   border-radius:999px;
   margin-bottom:18px;
 }
+.card h2{
+  font-family:'Big Shoulders Display', sans-serif;
+  font-weight:700;
+  font-size:1.6rem;
+  letter-spacing:0.02em;
+  color:var(--ink);
+  margin-bottom:16px;
+}
+.card .desc{
+  font-size:0.86rem;
+  color:var(--ink-soft);
+  line-height:1.5;
+  margin:-8px 0 18px;
+}
+.card .feedback{ margin-top:0; }
 
 .given-data{
   font-family:'IBM Plex Mono', monospace;
@@ -283,16 +344,134 @@ button.btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
   line-height:1.55;
 }
 
-footer{
-  margin-top:26px;
-  text-align:center;
-  font-size:0.76rem;
+.note{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  background:var(--surface-2);
+  border-left:4px solid var(--focus);
+  border-radius:8px;
+  padding:12px 14px;
+  margin-top:14px;
+}
+.note .note-icon{ flex:none; margin-top:2px; }
+.note p{ margin:0; font-size:0.86rem; line-height:1.5; color:var(--ink); }
+
+.stepper{
+  margin-top:8px;
+  text-align:left;
+}
+.step{
+  position:relative;
+  padding-left:44px;
+}
+.step-connector{
+  position:absolute;
+  left:15px;
+  top:34px;
+  bottom:-2px;
+  width:2px;
+  background:var(--line);
+  transition:background .15s;
+}
+.step.done .step-connector{ background:var(--accent); }
+.step-head{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  background:none;
+  border:none;
+  padding:10px 4px;
+  margin:0;
+  text-align:left;
+  font-family:'Work Sans', sans-serif;
+  cursor:pointer;
+}
+.step-head:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+.step-num{
+  position:absolute;
+  left:-44px;
+  top:2px;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:var(--surface);
   color:var(--ink-soft);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'IBM Plex Mono', monospace;
+  font-weight:700;
+  font-size:0.9rem;
+  border:2px solid var(--line);
+  transition:background .15s, border-color .15s, color .15s;
+}
+.step.unlocked .step-num{ border-color:var(--accent); color:var(--accent); }
+.step.done .step-num{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+.step-title{
+  flex:1;
+  font-weight:600;
+  font-size:0.94rem;
+  color:var(--ink);
+}
+.step.locked .step-title{ color:var(--ink-soft); }
+.step.locked .step-head{ cursor:not-allowed; }
+.step-chevron{
+  flex:none;
+  color:var(--ink-soft);
+  font-size:0.85rem;
+  transition:transform .15s;
+}
+.step.open .step-chevron{ transform:rotate(90deg); }
+.step-body{
+  padding:0 6px 20px 4px;
+  font-size:0.88rem;
+  line-height:1.55;
+}
+.step-body[hidden]{ display:none; }
+.step-body p{ margin:0 0 8px; }
+.step-result{
+  display:inline-flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  background:var(--surface-2);
+  border-radius:8px;
+  padding:8px 12px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.86rem;
+  font-variant-numeric:tabular-nums;
+}
+.step-tag{
+  font-size:0.66rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--ink-soft);
+  background:var(--surface);
+  border:1px solid var(--line);
+  padding:2px 8px;
+  border-radius:999px;
+}
+.result-box{
+  background:var(--success-bg);
+  color:var(--success);
+  border-radius:10px;
+  padding:14px 16px;
+  font-family:'IBM Plex Mono', monospace;
+  font-weight:700;
+  font-size:1.05rem;
+  text-align:center;
+  font-variant-numeric:tabular-nums;
 }
 
 @media (max-width:520px){
   .card{ padding:26px 16px 24px; }
   .readout .cell{ min-width:64px; padding:6px 8px; }
+  .step{ padding-left:38px; }
+  .step-num{ left:-38px; width:28px; height:28px; font-size:0.82rem; }
+  .step-connector{ left:13px; }
 }
 .back-link{
   display:inline-flex;
@@ -333,13 +512,127 @@ footer{
     </div>
   </div>
 
+  <div class="top-tabs">
+    <button class="toptab on" id="top-tab-teorie" data-tab="teorie">Teorie</button>
+    <button class="toptab" id="top-tab-procvicovani" data-tab="procvicovani">Procvičování</button>
+  </div>
+
+  <div id="theory-section" class="tab-section">
+
+    <div class="panel">
+      <div class="panel-title">Relativní odchylka</div>
+      <p>Relativní odchylka <b class="sym">δx</b> vyjadřuje přesnost měření v procentech: <b class="sym">δx</b> = (<b class="sym">Δx</b> / <b class="avgsym">x</b>) · 100 %, kde <b class="sym">Δx</b> je absolutní odchylka a <b class="avgsym">x</b> průměrná hodnota naměřené veličiny.</p>
+      <p>Umožňuje porovnat přesnost měření <b>různých veličin</b> mezi sebou. Čím nižší <b class="sym">δx</b>, tím přesnější (kvalitnější) je naše měření.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Postup zaokrouhlení výsledku</div>
+      <p><b>1. Zaokrouhlete odchylku <span class="sym">Δx</span></b> — na první nenulovou číslici zleva. Nul před ní i za ní může být libovolné množství.</p>
+      <p><b>2. Určete řád této číslice</b> — zjistěte, v jakém řádu je zaokrouhlená odchylka: desetiny, setiny, jednotky, desítky…</p>
+      <p><b>3. Zaokrouhlete průměr <span class="avgsym">x</span></b> — poslední platná číslice průměru musí být ve stejném řádu jako číslice odchylky.</p>
+      <p><b>4. Dopočítejte a zaokrouhlete <span class="sym">δx</span></b> — zaokrouhlete na 2 platné cifry.</p>
+
+      <div class="note">
+        <svg class="note-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="9" cy="9" r="7.5" stroke="var(--focus)" stroke-width="1.6"/>
+          <line x1="9" y1="8" x2="9" y2="13" stroke="var(--focus)" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="9" cy="5.2" r="1" fill="var(--focus)"/>
+        </svg>
+        <p>Pozor, pořadí je důležité: <b class="sym">δx</b> se počítá <b>až ze zaokrouhlených hodnot</b> <b class="sym">Δx</b> a <b class="avgsym">x</b> z kroků 1–3 — nikdy z původních, nezaokrouhlených čísel.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="cat-tag">Příklad z praxe</span>
+      <h2>Průměr šroubu</h2>
+      <p class="desc">Rozklikejte si postup krok po kroku — další krok se odemkne, jakmile vyřešíte ten předchozí.</p>
+
+      <div class="given-data">
+        <div class="given-line">Naměřeno: <b class="avgsym">d</b> = <b>5,058</b> mm, <b class="sym">Δd</b> = <b>0,04342</b> mm</div>
+      </div>
+
+      <div class="stepper" id="example-stepper">
+
+        <div class="step" data-step="1">
+          <div class="step-connector"></div>
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">1</span>
+            <span class="step-title">Zaokrouhlete odchylku <b class="sym">Δd</b></span>
+            <span class="step-chevron">▸</span>
+          </button>
+          <div class="step-body" hidden>
+            <p>Odchylku zaokrouhlíme na první nenulovou číslici zleva.</p>
+            <div class="step-result"><b class="sym">Δd</b> = 0,04342 mm&nbsp; → &nbsp;<b>0,04</b>&nbsp;mm</div>
+          </div>
+        </div>
+
+        <div class="step" data-step="2">
+          <div class="step-connector"></div>
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">2</span>
+            <span class="step-title">Určete řád této číslice</span>
+            <span class="step-chevron">▸</span>
+          </button>
+          <div class="step-body" hidden>
+            <p>Zjistíme, v jakém řádu zaokrouhlená odchylka je.</p>
+            <div class="step-result">0,04 mm je v řádu <b>setin</b> milimetru <span class="step-tag">řád: setiny</span></div>
+          </div>
+        </div>
+
+        <div class="step" data-step="3">
+          <div class="step-connector"></div>
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">3</span>
+            <span class="step-title">Zaokrouhlete průměr <b class="avgsym">d</b></span>
+            <span class="step-chevron">▸</span>
+          </button>
+          <div class="step-body" hidden>
+            <p>Poslední platná číslice průměru musí být ve stejném řádu jako číslice odchylky (setiny).</p>
+            <div class="step-result"><b class="avgsym">d</b> = 5,058 mm&nbsp; → &nbsp;<b>5,06</b>&nbsp;mm</div>
+          </div>
+        </div>
+
+        <div class="step" data-step="4">
+          <div class="step-connector"></div>
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">4</span>
+            <span class="step-title">Dopočítejte a zaokrouhlete <b class="sym">δd</b></span>
+            <span class="step-chevron">▸</span>
+          </button>
+          <div class="step-body" hidden>
+            <p>Relativní odchylku počítáme <b>až ze zaokrouhlených hodnot</b> <b class="sym">Δd</b> a <b class="avgsym">d</b> z kroků 1 a 3, výsledek zaokrouhlíme na 2 platné cifry.</p>
+            <div class="step-result"><b class="sym">δd</b> = 0,04 / 5,06 × 100 ≈ 0,79051&nbsp;%&nbsp; → &nbsp;<b>0,79</b>&nbsp;%</div>
+          </div>
+        </div>
+
+        <div class="step" data-step="5">
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">5</span>
+            <span class="step-title">Zapište výsledek</span>
+            <span class="step-chevron">▸</span>
+          </button>
+          <div class="step-body" hidden>
+            <div class="result-box"><b class="avgsym">d</b> = (5,06 ± 0,04) mm &nbsp;&nbsp; <b class="sym">δd</b> = 0,79 %</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="actions">
+        <button class="btn ghost" id="example-reset">Zopakovat postup od začátku</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="procvicovani-section" class="tab-section" hidden>
+
   <div class="panel">
     <div class="panel-title">
       <button class="linklike category-toggle" id="category-toggle" type="button" aria-expanded="false" aria-controls="category-row">Veličiny <span class="toggle-arrow" id="category-toggle-arrow">▸</span></button>
     </div>
     <div class="row" id="category-row" hidden></div>
     <div class="settings-foot">
-      <span class="hint">Desetinná čísla pište s čárkou i tečkou.</span>
       <button class="linklike" id="reset-stats">vynulovat statistiku</button>
     </div>
   </div>
@@ -348,7 +641,7 @@ footer{
     <span class="cat-tag" id="cat-tag">Síla</span>
 
     <div class="given-data" id="given-data">
-      <div class="given-line">Naměřeno (nezaokrouhleně): <b id="given-avg-label" class="sym">F</b> = <b id="given-avg-value">12,5837</b> <span id="given-avg-unit">N</span>, <b id="given-dev-label" class="sym">ΔF</b> = <b id="given-dev-value">0,4187</b> <span id="given-dev-unit">N</span></div>
+      <div class="given-line">Nezaokrouhlené hodnoty: <b id="given-avg-label" class="avgsym">F</b> = <b id="given-avg-value">12,5837</b> <span id="given-avg-unit">N</span>, <b id="given-dev-label" class="sym">ΔF</b> = <b id="given-dev-value">0,4187</b> <span id="given-dev-unit">N</span></div>
     </div>
 
     <div class="equation-block">
@@ -378,6 +671,8 @@ footer{
       <div class="headline" id="feedback-headline"></div>
       <div class="steps" id="feedback-steps"></div>
     </div>
+  </div>
+
   </div>
 </div>
 
@@ -492,9 +787,10 @@ footer{
     if(pool.length===0) pool = QUANTITIES;
     var q = pool[Math.floor(Math.random()*pool.length)];
 
-    var attempt, avgObj, devVal, devDecimals, roundedDev, devOrder, roundedAvg, relDevRaw, roundedRelDev;
-    for(attempt=0; attempt<12; attempt++){
+    var attempt, avgObj, devVal, devDecimals, roundedDev, devOrder, roundedAvg, relDevRaw, roundedRelDev, avgMag;
+    for(attempt=0; attempt<30; attempt++){
       avgObj = randomRawValue(q.range, 2, 4);
+      avgMag = Math.floor(Math.log10(Math.abs(avgObj.value)));
       var relPct = 0.01 + Math.random()*0.14;
       var devRawTarget = avgObj.value * relPct;
       devDecimals = 2 + Math.floor(Math.random()*3);
@@ -504,8 +800,20 @@ footer{
 
       roundedDev = roundSig(devVal, 1);
       devOrder = Math.floor(Math.log10(Math.abs(roundedDev)));
+      // Průměr musí mít i po zaokrouhlení na řád odchylky ještě aspoň jednu platnou cifru navíc —
+      // jinak by zaokrouhlení na řád odchylky smazalo poslední (nebo jedinou) platnou cifru průměru.
+      if(devOrder < avgMag){
+        roundedAvg = roundToOrder(avgObj.value, devOrder);
+        if(roundedAvg!==0) break;
+      }
+    }
+    // Nouzová pojistka pro vzácný případ, kdy se to netrefí ani na 30 pokusů — vynutí odchylku
+    // o řád menší než průměr, aby platilo devOrder < avgMag za všech okolností.
+    if(devOrder >= avgMag){
+      devOrder = avgMag - 1;
+      roundedDev = roundToOrder(devVal, devOrder);
+      if(roundedDev===0) roundedDev = Math.pow(10, devOrder);
       roundedAvg = roundToOrder(avgObj.value, devOrder);
-      if(roundedAvg!==0) break;
     }
 
     relDevRaw = roundedDev/roundedAvg*100;
@@ -516,13 +824,14 @@ footer{
 
     var deltaSym = 'Δ' + q.symbol;
     var smallDeltaSym = 'δ' + q.symbol;
+    var iAvgBar = '<span class="avgsym">' + q.symbol + '</span>';
     var iSym = '<i>' + q.symbol + '</i>';
     var iDelta = '<i>' + deltaSym + '</i>';
     var iSmallDelta = '<i>' + smallDeltaSym + '</i>';
 
     var stepsText =
       iDelta + ': ' + fmtFixed(devVal, devDecimals) + ' ' + q.unit + ' → zaokrouhleno na 1 platnou cifru (' + orderLabel(devOrder) + ') → ' + fmtFixed(roundedDev, avgDecimalsForAnswer) + ' ' + q.unit + '\n' +
-      iSym + ': ' + fmtFixed(avgObj.value, avgObj.decimals) + ' ' + q.unit + ' → zaokrouhleno na stejný řád jako ' + iDelta + ' (' + orderLabel(devOrder) + ') → ' + fmtFixed(roundedAvg, avgDecimalsForAnswer) + ' ' + q.unit + '\n' +
+      iAvgBar + ': ' + fmtFixed(avgObj.value, avgObj.decimals) + ' ' + q.unit + ' → zaokrouhleno na stejný řád jako ' + iDelta + ' (' + orderLabel(devOrder) + ') → ' + fmtFixed(roundedAvg, avgDecimalsForAnswer) + ' ' + q.unit + '\n' +
       iSmallDelta + ' = ' + fmtFixed(roundedDev, avgDecimalsForAnswer) + '/' + fmtFixed(roundedAvg, avgDecimalsForAnswer) + ' × 100 ≈ ' + fmtCZ(relDevRaw,4) + ' % → zaokrouhleno na 2 platné cifry → ' + fmtFixed(roundedRelDev, relDecimalsForAnswer) + ' %\n' +
       'Zápis: ' + iSym + ' = (' + fmtFixed(roundedAvg, avgDecimalsForAnswer) + ' ± ' + fmtFixed(roundedDev, avgDecimalsForAnswer) + ') ' + q.unit + ';  ' + iSmallDelta + ' = ' + fmtFixed(roundedRelDev, relDecimalsForAnswer) + ' %';
 
@@ -532,6 +841,7 @@ footer{
       devRaw:devVal, devRawDecimals:devDecimals,
       roundedAvg:roundedAvg, roundedDev:roundedDev, roundedRelDev:roundedRelDev,
       answerDecimals:avgDecimalsForAnswer,
+      relAnswerDecimals:relDecimalsForAnswer,
       stepsText:stepsText
     };
     renderQuestion();
@@ -565,15 +875,25 @@ footer{
     document.getElementById('answer-avg').focus();
   }
 
+  // Vrátí zadanou hodnotu a taky počet desetinných míst, jak je uživatel skutečně napsal
+  // (ne odvozeně z výsledného čísla) — "15" a "15,0" musí jít odlišit, jinak by prošlo
+  // i číslo zaokrouhlené na jiný počet platných míst, než se po žákovi chce.
   function parseAnswer(str){
-    if(!str) return NaN;
+    if(!str) return { value:NaN, decimals:0 };
     str = str.trim().replace(',', '.').replace(/\s+/g,'').replace('%','');
-    return parseFloat(str);
+    var value = parseFloat(str);
+    if(isNaN(value)) return { value:NaN, decimals:0 };
+    var dotIdx = str.indexOf('.');
+    var decimals = dotIdx===-1 ? 0 : (str.length - dotIdx - 1);
+    return { value:value, decimals:decimals };
   }
 
-  function closeEnough(a,b){
-    if(isNaN(a)) return false;
-    return Math.abs(a-b) <= Math.max(Math.abs(b)*1e-6, 1e-9);
+  // Správně jen tehdy, když souhlasí číselná hodnota I počet zadaných desetinných míst —
+  // ověřuje se tak i to, na kolik míst žák výsledek zaokrouhlil, ne jen jestli trefil číslo.
+  function isCorrectAnswer(parsed, correctValue, expectedDecimals){
+    if(isNaN(parsed.value)) return false;
+    if(parsed.decimals !== expectedDecimals) return false;
+    return Math.abs(parsed.value - correctValue) <= Math.max(Math.abs(correctValue)*1e-6, 1e-9);
   }
 
   function disableInputs(){
@@ -582,20 +902,34 @@ footer{
     });
   }
 
-  function checkAnswer(){
-    if(state.locked){ generateQuestion(); return; }
+  function isAllFilled(){
+    return document.getElementById('answer-avg').value.trim()!=='' &&
+           document.getElementById('answer-dev').value.trim()!=='' &&
+           document.getElementById('answer-reldev').value.trim()!=='';
+  }
+
+  // Když žák nevyplnil všechna pole, necháme ho potvrdit, že to tak opravdu chce —
+  // ať kontrolu nespustí omylem jen kliknutím / Enterem v jednom poli.
+  function confirmIncompleteIfNeeded(){
+    if(isAllFilled()) return true;
+    return window.confirm('Nejsou vyplněná všechna pole. Opravdu chcete odpověď zkontrolovat?');
+  }
+
+  // Skutečné vyhodnocení aktuální otázky — odděleno od checkAnswer(), aby stejnou logiku
+  // (a tím i stejné skóre/statistiky) mohlo spustit i přepnutí veličin, ne jen tlačítko Zkontrolovat.
+  function gradeCurrentAnswer(){
     var s = state.current;
     var avgInput = document.getElementById('answer-avg');
     var devInput = document.getElementById('answer-dev');
     var relInput = document.getElementById('answer-reldev');
 
-    var avgVal = parseAnswer(avgInput.value);
-    var devVal = parseAnswer(devInput.value);
-    var relVal = parseAnswer(relInput.value);
+    var avgParsed = parseAnswer(avgInput.value);
+    var devParsed = parseAnswer(devInput.value);
+    var relParsed = parseAnswer(relInput.value);
 
-    var avgOk = closeEnough(avgVal, s.roundedAvg);
-    var devOk = closeEnough(devVal, s.roundedDev);
-    var relOk = closeEnough(relVal, s.roundedRelDev);
+    var avgOk = isCorrectAnswer(avgParsed, s.roundedAvg, s.answerDecimals);
+    var devOk = isCorrectAnswer(devParsed, s.roundedDev, s.answerDecimals);
+    var relOk = isCorrectAnswer(relParsed, s.roundedRelDev, s.relAnswerDecimals);
     var allOk = avgOk && devOk && relOk;
 
     avgInput.classList.add(avgOk ? 'correct' : 'wrong');
@@ -625,6 +959,12 @@ footer{
     btnCheck.textContent = 'Další příklad →';
     btnCheck.focus();
     updateStats();
+  }
+
+  function checkAnswer(){
+    if(state.locked){ generateQuestion(); return; }
+    if(!confirmIncompleteIfNeeded()) return;
+    gradeCurrentAnswer();
   }
 
   function skip(){
@@ -661,6 +1001,13 @@ footer{
       b.addEventListener('click', function(){
         var activeCount = QUANTITIES.filter(function(qq){ return state.sel[qq.key]; }).length;
         if(state.sel[q.key] && activeCount===1) return;
+        // Přepnutí veličiny zahodí rozpracovanou otázku — proběhne stejná kontrola
+        // (a případný dotaz na nevyplněná pole) jako u tlačítka Zkontrolovat, aby se
+        // takhle nedaly beztrestně přeskakovat nepohodlné příklady.
+        if(!state.locked){
+          if(!confirmIncompleteIfNeeded()) return;
+          gradeCurrentAnswer();
+        }
         state.sel[q.key] = !state.sel[q.key];
         b.classList.toggle('on', state.sel[q.key]);
         generateQuestion();
@@ -693,6 +1040,78 @@ footer{
   buildCategoryRow();
   updateStats();
   generateQuestion();
+
+  // ---- horní přepínač Teorie / Procvičování ----
+  (function(){
+    var tabTeorie = document.getElementById('top-tab-teorie');
+    var tabProcvicovani = document.getElementById('top-tab-procvicovani');
+    var theorySection = document.getElementById('theory-section');
+    var procvicovaniSection = document.getElementById('procvicovani-section');
+
+    function show(tab){
+      var isTeorie = tab === 'teorie';
+      tabTeorie.classList.toggle('on', isTeorie);
+      tabProcvicovani.classList.toggle('on', !isTeorie);
+      theorySection.hidden = !isTeorie;
+      procvicovaniSection.hidden = isTeorie;
+    }
+
+    tabTeorie.addEventListener('click', function(){ show('teorie'); });
+    tabProcvicovani.addEventListener('click', function(){ show('procvicovani'); });
+  })();
+
+  // ---- příklad z praxe: postupně odemykaný stepper ----
+  (function(){
+    var wrap = document.getElementById('example-stepper');
+    if(!wrap) return;
+    var steps = Array.prototype.slice.call(wrap.querySelectorAll('.step'));
+    var unlockedUpTo = 1;
+
+    function refreshLocks(){
+      steps.forEach(function(st){
+        var idx = parseInt(st.getAttribute('data-step'), 10);
+        var locked = idx > unlockedUpTo;
+        st.classList.toggle('locked', locked);
+        st.classList.toggle('unlocked', !locked && !st.classList.contains('done'));
+        st.querySelector('.step-head').setAttribute('aria-disabled', locked ? 'true' : 'false');
+      });
+    }
+
+    steps.forEach(function(st){
+      var idx = parseInt(st.getAttribute('data-step'), 10);
+      var head = st.querySelector('.step-head');
+      var body = st.querySelector('.step-body');
+      head.addEventListener('click', function(){
+        if(idx > unlockedUpTo) return;
+        var wasOpen = st.classList.contains('open');
+        st.classList.toggle('open', !wasOpen);
+        body.hidden = wasOpen;
+        head.setAttribute('aria-expanded', (!wasOpen).toString());
+        if(!wasOpen){
+          st.classList.add('done');
+          if(idx === unlockedUpTo && unlockedUpTo < steps.length){
+            unlockedUpTo++;
+          }
+          refreshLocks();
+        }
+      });
+    });
+
+    var resetBtn = document.getElementById('example-reset');
+    if(resetBtn){
+      resetBtn.addEventListener('click', function(){
+        unlockedUpTo = 1;
+        steps.forEach(function(st){
+          st.classList.remove('open', 'done');
+          st.querySelector('.step-body').hidden = true;
+          st.querySelector('.step-head').setAttribute('aria-expanded', 'false');
+        });
+        refreshLocks();
+      });
+    }
+
+    refreshLocks();
+  })();
 })();
 </script>
 
